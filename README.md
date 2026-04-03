@@ -108,34 +108,3 @@ environment:
 
 Reference: https://docs.datadoghq.com/tracing/configure_data_security/
 
----
-
-## Method 2: Sensitive Data Scanner
-
-Sensitive Data Scanner runs inside Datadog at ingestion time. It scans incoming spans, detects PII patterns, and redacts or hashes them before they are stored — no Agent change or restart required.
-
-### Setup (Datadog UI)
-
-1. Go to **Datadog → Security → Sensitive Data Scanner**
-2. Click **+ New Scanning Group**
-   - Name: e.g. `APM PII`
-   - Filter: `source:apm` (targets APM spans)
-3. Click **+ Add Scanning Rule** inside the group
-   - Use the built-in **Email Address** library rule, or define a custom regex
-   - Action: **Redact** (replaces with `[REDACTED]`) or **Hash**
-4. Save — rules apply to all new incoming data immediately
-
-### Comparison with Method 1
-
-| | Method 1: replace_tags | Method 2: Sensitive Data Scanner |
-|---|---|---|
-| When applied | Agent side, before sending to Datadog | Datadog ingestion pipeline |
-| Config location | `datadog.yaml` or env var | Datadog UI |
-| Agent restart required | Yes | No |
-| Applies to existing data | No | No (only new ingested data) |
-| Centralized rule management | No | Yes |
-
-**Use Method 1** when you need to guarantee PII never leaves your network.  
-**Use Method 2** when you want centralized, no-code rule management inside Datadog.
-
-Reference: https://docs.datadoghq.com/security/sensitive_data_scanner/
