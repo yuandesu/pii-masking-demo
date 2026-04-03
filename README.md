@@ -59,3 +59,51 @@ Stop everything:
 ```bash
 docker compose down
 ```
+
+---
+
+## Masking Method: Datadog Agent `replace_tags`
+
+### How it works
+
+The Datadog Agent intercepts all traces **before forwarding them to Datadog**. The `replace_tags` rule applies a regex substitution to matching span tag values on the Agent side — the raw PII never leaves your infrastructure.
+
+```
+App → dd-trace → [Datadog Agent: replace_tags scrubs PII here] → Datadog backend
+```
+
+### Configuration
+
+`datadog/datadog-masked.yaml`:
+
+```yaml
+apm_config:
+  enabled: true
+  replace_tags:
+    - name: "*"
+      pattern: "[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+"
+      repl: "[EMAIL REDACTED]"
+```
+
+| Field | Description |
+|---|---|
+| `name` | Tag name to apply the rule to. `"*"` matches all tags including `error.message`, `user.email`, etc. |
+| `pattern` | Regular expression to match within the tag value |
+| `repl` | Replacement string |
+
+### Environment variable alternative
+
+You can set this without a config file by passing `DD_APM_REPLACE_TAGS` to the Agent container:
+
+```yaml
+# docker-compose.yml
+environment:
+  DD_APM_REPLACE_TAGS: '[{"name":"*","pattern":"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+","repl":"[EMAIL REDACTED]"}]'
+```
+
+### Expected result in APM
+
+- `admin-tool-raw` → `error.message: User testpiilusername@gmail.com was not found.`
+- `admin-tool-masked` → `error.message: User [EMAIL REDACTED] was not found.`
+
+Reference: https://docs.datadoghq.com/tracing/configure_data_security/
