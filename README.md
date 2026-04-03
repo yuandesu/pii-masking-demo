@@ -103,7 +103,12 @@ environment:
 
 ### Expected result in APM
 
-- `admin-tool-raw` → `error.message: User testpiilusername@gmail.com was not found.`
-- `admin-tool-masked` → `error.message: User [EMAIL REDACTED] was not found.`
+**admin-tool-raw** — PII visible in error message:
+
+![admin-tool-raw](img/admin-tool-raw.png)
+
+**admin-tool-masked** — email replaced by `[EMAIL REDACTED]`:
+
+![admin-tool-masked](img/admin-tool-masked.png)
 
 Reference: https://docs.datadoghq.com/tracing/configure_data_security/
