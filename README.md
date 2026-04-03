@@ -1,3 +1,5 @@
+[日本語](README.ja.md)
+
 # APM PII Masking Demo
 
 Minimal Node.js + Datadog APM demo that reproduces an error span containing a PII email address.
