@@ -113,7 +113,7 @@ environment:
 
 **admin-tool-masked** — email replaced by `[EMAIL REDACTED]`:
 
-![admin-tool-masked](img/admin-tool-masked.png)
+![admin-tool-masked](img/admin-tool-masked.png?v=2)
 
 Reference: https://docs.datadoghq.com/tracing/configure_data_security/
 
@@ -231,6 +231,6 @@ environment:
 
 **admin-tool-masked** — メールアドレスが `[EMAIL REDACTED]` に置換済み：
 
-![admin-tool-masked](img/admin-tool-masked.png)
+![admin-tool-masked](img/admin-tool-masked.png?v=2)
 
 参考ドキュメント：https://docs.datadoghq.com/tracing/configure_data_security/
