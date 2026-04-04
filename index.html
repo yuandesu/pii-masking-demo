@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nodejs-pii-masking-demo</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f5;color:#1a1a1a;min-height:100vh}
+header{background:#632CA6;color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(99,44,166,.35)}
+.header-inner{max-width:900px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.repo-title{font-size:1.05rem;font-weight:700;letter-spacing:.3px;opacity:.95}
+.lang-btns{display:flex;gap:6px}
+.lang-btn{border:2px solid rgba(255,255,255,.55);background:transparent;color:#fff;padding:5px 14px;border-radius:999px;cursor:pointer;font-size:.82rem;font-weight:600;transition:all .18s;white-space:nowrap}
+.lang-btn:hover{background:rgba(255,255,255,.18)}
+.lang-btn.active{background:#fff;color:#632CA6;border-color:#fff}
+main{max-width:900px;margin:0 auto;padding:32px 20px 60px}
+[data-lang]{display:none}
+[data-lang].visible{display:block}
+.page-hero{background:linear-gradient(135deg,#632CA6 0%,#7952CC 100%);color:#fff;border-radius:16px;padding:36px 32px;margin-bottom:28px;box-shadow:0 4px 24px rgba(99,44,166,.22)}
+.page-hero h1{font-size:1.7rem;font-weight:800;margin-bottom:8px;line-height:1.25}
+.page-hero .subtitle{opacity:.88;font-size:1rem;line-height:1.55}
+.card{background:#fff;border-radius:14px;padding:28px 30px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid #e8e4f0}
+.card h2{font-size:1.13rem;font-weight:700;color:#632CA6;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2 .icon{font-size:1.1em}
+.card p{line-height:1.7;color:#333;margin-bottom:10px}
+.card p:last-child{margin-bottom:0}
+.card ul{margin:8px 0 0 18px;line-height:1.8;color:#333}
+.card ul li{margin-bottom:4px}
+.card ul li strong{color:#632CA6}
+pre{background:#1e1e2e;color:#cdd6f4;border-radius:10px;padding:18px 20px;font-size:.84rem;overflow-x:auto;margin:12px 0;line-height:1.6;font-family:'SF Mono','Fira Code',monospace}
+code{background:#f0eaf8;color:#632CA6;border-radius:4px;padding:1px 6px;font-size:.87em;font-family:'SF Mono','Fira Code',monospace}
+.arch-wrap{background:#f8f6fc;border-radius:12px;padding:24px 20px;margin:14px 0;overflow-x:auto}
+.arch{display:flex;align-items:center;justify-content:flex-start;gap:0;flex-wrap:wrap;min-width:fit-content}
+.arch-col{display:flex;flex-direction:column;align-items:center;gap:8px}
+.box{background:#fff;border:2px solid #7952CC;border-radius:10px;padding:10px 14px;font-size:.8rem;font-weight:600;color:#632CA6;text-align:center;white-space:nowrap;box-shadow:0 2px 6px rgba(121,82,204,.12);min-width:90px}
+.box.green{border-color:#2da84e;color:#1a7a38}
+.box.blue{border-color:#0066cc;color:#004a99}
+.box.orange{border-color:#e0720c;color:#b35800}
+.box.gray{border-color:#888;color:#555}
+.box.red{border-color:#cc2222;color:#991111}
+.arrow{font-size:1.3rem;color:#7952CC;padding:0 6px;font-weight:700;align-self:center}
+.arrow-label{font-size:.72rem;color:#888;text-align:center;margin-top:2px}
+.arrow-col{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.arch-row{display:flex;align-items:center;gap:0;margin-bottom:8px;flex-wrap:wrap}
+.badge{display:inline-block;background:#f0eaf8;color:#632CA6;border-radius:6px;padding:2px 9px;font-size:.78rem;font-weight:600;margin:2px 3px}
+.qs-steps{counter-reset:step}
+.qs-steps li{list-style:none;margin-bottom:10px;padding-left:36px;position:relative;line-height:1.6}
+.qs-steps li::before{content:counter(step);counter-increment:step;position:absolute;left:0;top:0;background:#632CA6;color:#fff;width:24px;height:24px;border-radius:50%;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.see-tag{display:inline-block;background:#632CA6;color:#fff;border-radius:6px;padding:3px 10px;font-size:.8rem;margin:2px 3px;font-weight:500}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <span class="repo-title">nodejs-pii-masking-demo</span>
+    <div class="lang-btns">
+      <button class="lang-btn active" onclick="setLang('en',this)">English</button>
+      <button class="lang-btn" onclick="setLang('ja',this)">日本語</button>
+      <button class="lang-btn" onclick="setLang('zh',this)">繁體中文</button>
+    </div>
+  </div>
+</header>
+<main>
+
+<div data-lang="en">
+<div class="page-hero">
+  <h1>nodejs-pii-masking-demo</h1>
+  <p class="subtitle">Redact PII from APM traces at the Datadog Agent layer — before data leaves your infrastructure. Zero app code changes.</p>
+</div>
+<div class="card">
+  <h2><span class="icon">🎯</span>Purpose</h2>
+  <p>This demo proves that the Datadog Agent can intercept and redact PII (Personally Identifiable Information) from APM traces using <code>replace_tags</code> — without touching a single line of application code.</p>
+  <p><strong>The core problem:</strong> Error messages often include user data. When an error says "User john.doe@company.com was not found", that email gets recorded in the APM trace span's <code>error.message</code> tag. If the trace reaches Datadog's backend, the PII is now in a third-party system — a GDPR/CCPA compliance risk. The Agent's <code>replace_tags</code> config applies regex substitution to all traces <em>before</em> forwarding them. Your application code never needs to change.</p>
+</div>
+<div class="card">
+  <h2><span class="icon">🏗️</span>How It Works — Architecture</h2>
+  
+<div class="arch-wrap">
+  <div class="arch-row">
+    <div class="box gray">curl</div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">POST :3004</div></div>
+    <div class="box green">admin-tool-masked<br><small>Node.js</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">traces</div></div>
+    <div class="box blue">pii-agent-masked<br><small>replace_tags ON</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">HTTPS</div></div>
+    <div class="box orange">Datadog<br><small>[EMAIL REDACTED]</small></div>
+  </div>
+  <div class="arch-row" style="margin-top:12px">
+    <div class="box gray">curl</div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">POST :3005</div></div>
+    <div class="box red">admin-tool-raw<br><small>Node.js</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">traces</div></div>
+    <div class="box" style="border-color:#cc2222;color:#991111">pii-agent-raw<br><small>no masking</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">HTTPS</div></div>
+    <div class="box orange">Datadog<br><small>raw email visible</small></div>
+  </div>
+</div>
+  <p>Two identical Node.js apps, two Datadog Agents. Port 3004 routes through the masked agent (replace_tags active). Port 3005 routes through the raw agent (no masking). Trigger the same error on both ports and compare what reaches Datadog's backend.</p>
+</div>
+<div class="card">
+  <h2><span class="icon">💡</span>Key Concepts</h2>
+  <ul>
+    <li><strong>replace_tags:</strong> An Agent-side config block that rewrites span tag values using regex. Applied to all spans before they leave your infrastructure.</li>
+    <li><strong>name: "*":</strong> The wildcard that matches all span tags — including <code>error.message</code>, <code>http.url</code>, <code>user.email</code>, and any custom tag.</li>
+    <li><strong>The raw PII never reaches Datadog's servers</strong> when masking is enabled — the regex runs inside your own Agent, on your own infrastructure.</li>
+    <li><strong>dd-trace (Node.js):</strong> Datadog's Node.js APM library. Auto-instruments HTTP, Express, databases, and more.</li>
+    <li><strong>Zero code changes:</strong> Masking is 100% in Agent config. No application deployments required to enable or tune the regex.</li>
+  </ul>
+</div>
+<div class="card">
+  <h2><span class="icon">🚀</span>Quick Start</h2>
+  <ol class="qs-steps">
+    <li>Copy env file: <pre>cp .env.example .env</pre></li>
+    <li>Set your API key in <code>.env</code>: <pre>DD_API_KEY=your_key_here</pre></li>
+    <li>Start all services (unset local DD_API_KEY to avoid conflict): <pre>env -u DD_API_KEY docker compose up -d --build</pre></li>
+    <li>Trigger a masked error: <pre>curl -X POST http://localhost:3004/lookup   -d '{"email":"john.doe@company.com"}'</pre></li>
+    <li>Trigger a raw error: <pre>curl -X POST http://localhost:3005/lookup   -d '{"email":"john.doe@company.com"}'</pre></li>
+  </ol>
+</div>
+<div class="card">
+  <h2><span class="icon">📊</span>What You'll See in Datadog</h2>
+  <p>Go to <strong>APM → Traces</strong> and compare the two services:</p>
+  <p><strong>admin-tool-masked:</strong> <span class="see-tag">error.message: User [EMAIL REDACTED] was not found</span></p>
+  <p><strong>admin-tool-raw:</strong> <span class="see-tag">error.message: User john.doe@company.com was not found</span></p>
+</div>
+</div>
+<div data-lang="ja">
+<div class="page-hero">
+  <h1>nodejs-pii-masking-demo</h1>
+  <p class="subtitle">DatadogエージェントレイヤーでAPMトレースからPIIを削除 — アプリコードは一切変更不要。</p>
+</div>
+<div class="card">
+  <h2><span class="icon">🎯</span>目的</h2>
+  <p>このデモは、DatadogエージェントのAgent側設定<code>replace_tags</code>を使ってAPMトレースからPII（個人識別情報）を削除できることを実証します。アプリのコードは一切変更不要です。</p>
+  <p><strong>核心的な問題:</strong> エラーメッセージにはユーザーデータが含まれることがよくあります。"User john.doe@company.com was not found"というエラーが発生した場合、そのメールアドレスはAPMトレーススパンの<code>error.message</code>タグに記録されます。トレースがDatadogのバックエンドに到達すれば、PIIがサードパーティシステムに存在することになり、GDPR/CCPAのコンプライアンスリスクとなります。<code>replace_tags</code>はトレースを転送する前にエージェント内で正規表現置換を適用します。</p>
+</div>
+<div class="card">
+  <h2><span class="icon">🏗️</span>仕組み — アーキテクチャ</h2>
+  
+<div class="arch-wrap">
+  <div class="arch-row">
+    <div class="box gray">curl</div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">POST :3004</div></div>
+    <div class="box green">admin-tool-masked<br><small>Node.js</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">traces</div></div>
+    <div class="box blue">pii-agent-masked<br><small>replace_tags ON</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">HTTPS</div></div>
+    <div class="box orange">Datadog<br><small>[EMAIL REDACTED]</small></div>
+  </div>
+  <div class="arch-row" style="margin-top:12px">
+    <div class="box gray">curl</div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">POST :3005</div></div>
+    <div class="box red">admin-tool-raw<br><small>Node.js</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">traces</div></div>
+    <div class="box" style="border-color:#cc2222;color:#991111">pii-agent-raw<br><small>no masking</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">HTTPS</div></div>
+    <div class="box orange">Datadog<br><small>raw email visible</small></div>
+  </div>
+</div>
+  <p>同一の2つのNode.jsアプリと2つのDatadogエージェント。ポート3004はマスクエージェント経由（replace_tags有効）。ポート3005はrawエージェント経由（マスクなし）。両方のポートで同じエラーをトリガーして、Datadogのバックエンドに到達するものを比較します。</p>
+</div>
+<div class="card">
+  <h2><span class="icon">💡</span>重要な概念</h2>
+  <ul>
+    <li><strong>replace_tags:</strong> スパンタグ値を正規表現で書き換えるエージェント側の設定。インフラを離れる前にすべてのスパンに適用されます。</li>
+    <li><strong>name: "*":</strong> <code>error.message</code>、<code>http.url</code>、<code>user.email</code>など、すべてのスパンタグにマッチするワイルドカード。</li>
+    <li><strong>マスク有効時、生のPIIはDatadogのサーバーに到達しません</strong> — 正規表現は自社エージェント内で実行されます。</li>
+    <li><strong>dd-trace (Node.js):</strong> DatadogのNode.js APMライブラリ。HTTP、Express、データベースなどを自動計装。</li>
+    <li><strong>コード変更ゼロ:</strong> マスキングは100%エージェント設定。正規表現の有効化や調整にアプリのデプロイは不要。</li>
+  </ul>
+</div>
+<div class="card">
+  <h2><span class="icon">🚀</span>クイックスタート</h2>
+  <ol class="qs-steps">
+    <li>envファイルをコピー: <pre>cp .env.example .env</pre></li>
+    <li>APIキーを設定: <pre>DD_API_KEY=your_key_here</pre></li>
+    <li>全サービスを起動: <pre>env -u DD_API_KEY docker compose up -d --build</pre></li>
+    <li>マスクエラーをトリガー: <pre>curl -X POST http://localhost:3004/lookup   -d '{"email":"john.doe@company.com"}'</pre></li>
+    <li>rawエラーをトリガー: <pre>curl -X POST http://localhost:3005/lookup   -d '{"email":"john.doe@company.com"}'</pre></li>
+  </ol>
+</div>
+<div class="card">
+  <h2><span class="icon">📊</span>Datadogで確認できること</h2>
+  <p><strong>APM → トレース</strong>で2つのサービスを比較:</p>
+  <p><strong>admin-tool-masked:</strong> <span class="see-tag">error.message: User [EMAIL REDACTED] was not found</span></p>
+  <p><strong>admin-tool-raw:</strong> <span class="see-tag">error.message: User john.doe@company.com was not found</span></p>
+</div>
+</div>
+<div data-lang="zh">
+<div class="page-hero">
+  <h1>nodejs-pii-masking-demo</h1>
+  <p class="subtitle">在 Datadog Agent 層從 APM 追蹤中刪除 PII，在資料離開您的基礎設施之前——零應用程式程式碼變更。</p>
+</div>
+<div class="card">
+  <h2><span class="icon">🎯</span>目的</h2>
+  <p>本示範證明 Datadog Agent 可以使用 <code>replace_tags</code> 攔截並刪除 APM 追蹤中的 PII（個人識別資訊），無需更改任何應用程式程式碼。</p>
+  <p><strong>核心問題：</strong>錯誤訊息通常包含使用者資料。當錯誤顯示「User john.doe@company.com was not found」時，該電子郵件會記錄在 APM 追蹤 span 的 <code>error.message</code> 標籤中。如果追蹤到達 Datadog 後端，PII 就進入了第三方系統——這是 GDPR/CCPA 合規風險。Agent 的 <code>replace_tags</code> 設定在轉發追蹤之前在代理內部應用正規表達式替換，您的應用程式程式碼永遠不需要更改。</p>
+</div>
+<div class="card">
+  <h2><span class="icon">🏗️</span>運作方式 — 架構</h2>
+  
+<div class="arch-wrap">
+  <div class="arch-row">
+    <div class="box gray">curl</div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">POST :3004</div></div>
+    <div class="box green">admin-tool-masked<br><small>Node.js</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">traces</div></div>
+    <div class="box blue">pii-agent-masked<br><small>replace_tags ON</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">HTTPS</div></div>
+    <div class="box orange">Datadog<br><small>[EMAIL REDACTED]</small></div>
+  </div>
+  <div class="arch-row" style="margin-top:12px">
+    <div class="box gray">curl</div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">POST :3005</div></div>
+    <div class="box red">admin-tool-raw<br><small>Node.js</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">traces</div></div>
+    <div class="box" style="border-color:#cc2222;color:#991111">pii-agent-raw<br><small>no masking</small></div>
+    <div class="arrow-col"><div class="arrow">→</div><div class="arrow-label">HTTPS</div></div>
+    <div class="box orange">Datadog<br><small>raw email visible</small></div>
+  </div>
+</div>
+  <p>兩個相同的 Node.js 應用程式，兩個 Datadog Agent。端口 3004 透過遮罩 Agent 路由（replace_tags 啟用）。端口 3005 透過原始 Agent 路由（無遮罩）。在兩個端口觸發相同錯誤，比較到達 Datadog 後端的內容。</p>
+</div>
+<div class="card">
+  <h2><span class="icon">💡</span>核心概念</h2>
+  <ul>
+    <li><strong>replace_tags：</strong>使用正規表達式重寫 span 標籤值的 Agent 端設定塊，在所有 span 離開基礎設施之前應用。</li>
+    <li><strong>name: "*"：</strong>匹配所有 span 標籤的萬用字元，包括 <code>error.message</code>、<code>http.url</code>、<code>user.email</code> 和任何自訂標籤。</li>
+    <li><strong>啟用遮罩時，原始 PII 永遠不會到達 Datadog 伺服器</strong>——正規表達式在您自己的 Agent 內部運行。</li>
+    <li><strong>dd-trace (Node.js)：</strong>Datadog 的 Node.js APM 函式庫，自動插樁 HTTP、Express、資料庫等。</li>
+    <li><strong>零程式碼變更：</strong>遮罩 100% 在 Agent 設定中。啟用或調整正規表達式無需重新部署應用程式。</li>
+  </ul>
+</div>
+<div class="card">
+  <h2><span class="icon">🚀</span>快速開始</h2>
+  <ol class="qs-steps">
+    <li>複製環境檔案：<pre>cp .env.example .env</pre></li>
+    <li>設定 API 金鑰：<pre>DD_API_KEY=your_key_here</pre></li>
+    <li>啟動所有服務：<pre>env -u DD_API_KEY docker compose up -d --build</pre></li>
+    <li>觸發遮罩錯誤：<pre>curl -X POST http://localhost:3004/lookup   -d '{"email":"john.doe@company.com"}'</pre></li>
+    <li>觸發原始錯誤：<pre>curl -X POST http://localhost:3005/lookup   -d '{"email":"john.doe@company.com"}'</pre></li>
+  </ol>
+</div>
+<div class="card">
+  <h2><span class="icon">📊</span>在 Datadog 中會看到什麼</h2>
+  <p>前往 <strong>APM → Traces</strong>，比較兩個服務：</p>
+  <p><strong>admin-tool-masked：</strong><span class="see-tag">error.message: User [EMAIL REDACTED] was not found</span></p>
+  <p><strong>admin-tool-raw：</strong><span class="see-tag">error.message: User john.doe@company.com was not found</span></p>
+</div>
+</div>
+</main>
+<script>
+function setLang(lang,btn){
+  document.querySelectorAll('[data-lang]').forEach(el=>el.classList.remove('visible'));
+  document.querySelectorAll('[data-lang="'+lang+'"]').forEach(el=>el.classList.add('visible'));
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('[data-lang="en"]').forEach(el=>el.classList.add('visible'));
+});
+</script>
+</body>
+</html>
