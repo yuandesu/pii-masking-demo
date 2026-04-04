@@ -4,7 +4,7 @@
 
 ## English
 
-# PII Masking Demo
+# Node.js PII Masking Demo
 
 Side-by-side comparison of two identical Node.js apps — one with PII masking enabled, one without. Use this to see how the Datadog Agent's `replace_tags` feature redacts sensitive data (email addresses) from APM traces before they ever leave your infrastructure.
 
@@ -109,7 +109,7 @@ https://docs.datadoghq.com/tracing/configure_data_security/
 
 ## 日本語
 
-# PII マスキング デモ
+# Node.js PII マスキング デモ
 
 2 つの同一 Node.js アプリを並べて比較します — 一方は PII マスキング有効、もう一方はなし。Datadog Agent の `replace_tags` 機能が、APM トレースからメールアドレスなどの機密データをインフラ外に送出される前に自動的に消去する様子を確認できます。
 
@@ -214,7 +214,7 @@ https://docs.datadoghq.com/tracing/configure_data_security/
 
 ## 繁體中文
 
-# PII 遮罩示範
+# Node.js PII 遮罩示範
 
 並排比較兩個相同的 Node.js 應用程式 — 一個啟用 PII 遮罩，一個不啟用。用來觀察 Datadog Agent 的 `replace_tags` 功能如何在 APM traces 離開您的基礎架構之前，自動消除敏感資料（電子郵件地址）。
 
