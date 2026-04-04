@@ -79,6 +79,16 @@ apm_config:
 
 You can also configure this without a file by passing `DD_APM_REPLACE_TAGS` as an environment variable to the Agent container.
 
+## Expected Result in Datadog APM
+
+**`admin-tool-raw`** — the raw email address appears in the error message span:
+
+![admin-tool-raw trace showing PII in error message](img/admin-tool-raw.png)
+
+**`admin-tool-masked`** — the email is replaced with `[EMAIL REDACTED]` before the trace reaches Datadog:
+
+![admin-tool-masked trace showing redacted email](img/admin-tool-masked.png)
+
 ## Cleanup
 
 ```bash
